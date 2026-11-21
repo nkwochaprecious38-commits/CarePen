@@ -1,10 +1,10 @@
-export const dynamic = "force-dynamic";
-
+import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import Sidebar from "@/components/dashboard/Sidebar";
 import { Bell, Search } from "lucide-react";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  noStore();
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const { data: profile } = await supabase

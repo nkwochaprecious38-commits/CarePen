@@ -1,3 +1,4 @@
+"use client";
 import { UserCog, Mail, Shield, Plus } from "lucide-react";
 
 const members = [

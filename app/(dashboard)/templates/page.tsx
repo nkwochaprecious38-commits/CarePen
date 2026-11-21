@@ -1,3 +1,4 @@
+"use client";
 import { LayoutTemplate, Stethoscope } from "lucide-react";
 
 const specialties = [

@@ -1,4 +1,4 @@
-import { unstable_noStore as noStore } from "next/cache";
+export const dynamic = "force-dynamic";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { Users, Calendar, FileText, CheckCircle2, FileEdit, ClipboardList, TrendingUp, Stethoscope, Clock, Plus } from "lucide-react";
@@ -18,7 +18,6 @@ function statusStyle(status: string) {
 }
 
 export default async function DashboardPage() {
-  noStore();
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const uid = user?.id ?? "";

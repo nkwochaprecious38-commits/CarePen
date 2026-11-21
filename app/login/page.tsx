@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, ArrowRight, PenLine, CheckCircle2 } from "lucide-react";
+import { Eye, EyeOff, ArrowRight, PenLine } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 const H = ({ tag: T = "h2", style = {}, children, ...p }: any) => (
@@ -30,17 +30,32 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
+
     const form = e.currentTarget;
-    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value.trim();
     const password = (form.elements.namedItem("password") as HTMLInputElement).value;
-    const supabase = createClient();
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
-    if (authError) {
-      setError(authError.message);
-      setLoading(false);
-    } else {
+
+    try {
+      const supabase = createClient();
+      const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (authError) {
+        if (authError.message.includes("Invalid login credentials") || authError.message.includes("invalid_credentials")) {
+          setError("Incorrect email or password. Please check your details and try again.");
+        } else if (authError.message.includes("Email not confirmed")) {
+          setError("Please confirm your email address first. Check your inbox for a confirmation link.");
+        } else {
+          setError(authError.message);
+        }
+        setLoading(false);
+        return;
+      }
+
       router.push("/dashboard");
       router.refresh();
+    } catch (err: any) {
+      setError(err?.message ?? "An unexpected error occurred. Please try again.");
+      setLoading(false);
     }
   }
 
@@ -60,13 +75,13 @@ export default function LoginPage() {
             Welcome back.<br />Your patients are waiting.
           </H>
           <Txt style={{ color: "rgba(255,255,255,.5)", fontSize: 15, lineHeight: 1.7, marginBottom: 36 }}>
-            Sign in to access your clinical documentation tools, patient summaries, and AI scribe sessions.
+            Sign in to access your clinical documentation tools, patient records, and AI scribe sessions.
           </Txt>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {[
               "AI-generated note drafts reviewed and approved by you",
               "No notes enter records without clinician sign-off",
-              "Demo mode available without real patient data",
+              "Your data stays private with row-level security",
             ].map((t) => (
               <div key={t} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
                 <div style={{ width: 20, height: 20, borderRadius: "50%", background: "rgba(22,184,166,.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
@@ -96,7 +111,7 @@ export default function LoginPage() {
             </Txt>
 
             {error && (
-              <div style={{ padding: "12px 16px", borderRadius: 10, background: "rgba(239,68,68,.06)", border: "1px solid rgba(239,68,68,.2)", marginBottom: 4 }}>
+              <div style={{ padding: "12px 16px", borderRadius: 10, background: "rgba(239,68,68,.06)", border: "1px solid rgba(239,68,68,.2)", marginBottom: 20 }}>
                 <Txt style={{ fontSize: 13, color: "#DC2626" }}>{error}</Txt>
               </div>
             )}
@@ -106,43 +121,27 @@ export default function LoginPage() {
                 <label style={{ display: "block", fontFamily: "var(--font-manrope,'Manrope',sans-serif)", fontSize: 13, fontWeight: 700, color: "#0C1E38", marginBottom: 7 }}>
                   Email address
                 </label>
-                <input
-                  name="email"
-                  type="email" required placeholder="you@clinic.com"
-                  style={inputBase}
+                <input name="email" type="email" required placeholder="you@clinic.com" style={inputBase}
                   onFocus={(e) => { e.currentTarget.style.borderColor = "#1769E8"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(23,105,232,.08)"; }}
-                  onBlur={(e) => { e.currentTarget.style.borderColor = "#E2E8F0"; e.currentTarget.style.boxShadow = "none"; }}
-                />
+                  onBlur={(e) => { e.currentTarget.style.borderColor = "#E2E8F0"; e.currentTarget.style.boxShadow = "none"; }} />
               </div>
 
               <div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 7 }}>
                   <label style={{ fontFamily: "var(--font-manrope,'Manrope',sans-serif)", fontSize: 13, fontWeight: 700, color: "#0C1E38" }}>Password</label>
-                  <Link href="/forgot-password" style={{ fontFamily: "var(--font-inter,'Inter',sans-serif)", fontSize: 12.5, fontWeight: 500, color: "#1769E8", textDecoration: "none" }}>
-                    Forgot password?
-                  </Link>
                 </div>
                 <div style={{ position: "relative" }}>
-                  <input
-                    name="password"
-                    type={showPass ? "text" : "password"} required placeholder="Enter your password"
+                  <input name="password" type={showPass ? "text" : "password"} required placeholder="Enter your password"
                     style={{ ...inputBase, paddingRight: 44 }}
                     onFocus={(e) => { e.currentTarget.style.borderColor = "#1769E8"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(23,105,232,.08)"; }}
-                    onBlur={(e) => { e.currentTarget.style.borderColor = "#E2E8F0"; e.currentTarget.style.boxShadow = "none"; }}
-                  />
-                  <button type="button" onClick={() => setShowPass(!showPass)} style={{
-                    position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
-                    background: "none", border: "none", cursor: "pointer", color: "#94A3B8", padding: 4, display: "flex",
-                  }}>
+                    onBlur={(e) => { e.currentTarget.style.borderColor = "#E2E8F0"; e.currentTarget.style.boxShadow = "none"; }} />
+                  <button type="button" onClick={() => setShowPass(!showPass)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#94A3B8", padding: 4, display: "flex" }}>
                     {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
               </div>
 
-              <button type="submit" disabled={loading} className="btn btn-blue" style={{
-                width: "100%", justifyContent: "center", fontSize: 15, padding: "13px 24px",
-                opacity: loading ? .7 : 1, marginTop: 4,
-              }}>
+              <button type="submit" disabled={loading} className="btn btn-blue" style={{ width: "100%", justifyContent: "center", fontSize: 15, padding: "13px 24px", opacity: loading ? .7 : 1 }}>
                 {loading ? "Signing in..." : (<>Sign In <ArrowRight size={16} /></>)}
               </button>
             </form>

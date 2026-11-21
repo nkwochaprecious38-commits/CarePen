@@ -36,24 +36,48 @@ export default function SignupPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
+
     const form = e.currentTarget;
-    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value.trim();
     const password = (form.elements.namedItem("password") as HTMLInputElement).value;
-    const firstName = (form.elements.namedItem("firstName") as HTMLInputElement).value;
-    const lastName = (form.elements.namedItem("lastName") as HTMLInputElement).value;
+    const firstName = (form.elements.namedItem("firstName") as HTMLInputElement).value.trim();
+    const lastName = (form.elements.namedItem("lastName") as HTMLInputElement).value.trim();
     const specialty = (form.elements.namedItem("specialty") as HTMLSelectElement).value;
-    const supabase = createClient();
-    const { error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { first_name: firstName, last_name: lastName, specialty } },
-    });
-    if (authError) {
-      setError(authError.message);
+
+    if (!email || !password || !firstName || !lastName || !specialty) {
+      setError("Please fill in all fields.");
       setLoading(false);
-    } else {
+      return;
+    }
+
+    try {
+      const supabase = createClient();
+      const { data, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { first_name: firstName, last_name: lastName, specialty },
+        },
+      });
+
+      if (authError) {
+        setError(authError.message);
+        setLoading(false);
+        return;
+      }
+
+      if (data?.user && !data.session) {
+        // Email confirmation required
+        setError("Please check your email and click the confirmation link to activate your account.");
+        setLoading(false);
+        return;
+      }
+
       setSuccess(true);
       setTimeout(() => router.push("/dashboard"), 1500);
+    } catch (err: any) {
+      setError(err?.message ?? "An unexpected error occurred. Please try again.");
+      setLoading(false);
     }
   }
 
@@ -73,15 +97,14 @@ export default function SignupPage() {
             Start documenting better in minutes.
           </H>
           <Txt style={{ color: "rgba(255,255,255,.5)", fontSize: 15, lineHeight: 1.7, marginBottom: 36 }}>
-            Free 14-day trial. No credit card required. Full access to all features with demo data from day one.
+            Full access to all features. Clinician approval required on every note.
           </Txt>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {[
-              "14-day free trial, no credit card required",
-              "Full platform access with demo data",
               "AI scribe, notes, summaries, and more",
-              "Cancel any time, no contracts",
               "Clinician approval required on every note",
+              "No notes enter records without your sign-off",
+              "Cancel any time, no contracts",
             ].map((t) => (
               <div key={t} style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <CheckCircle2 size={15} color="#16B8A6" style={{ flexShrink: 0 }} />
@@ -109,19 +132,22 @@ export default function SignupPage() {
             </Txt>
 
             {error && (
-              <div style={{ padding: "12px 16px", borderRadius: 10, background: "rgba(239,68,68,.06)", border: "1px solid rgba(239,68,68,.2)", marginBottom: 4 }}>
+              <div style={{ padding: "12px 16px", borderRadius: 10, background: "rgba(239,68,68,.06)", border: "1px solid rgba(239,68,68,.2)", marginBottom: 16 }}>
                 <Txt style={{ fontSize: 13, color: "#DC2626" }}>{error}</Txt>
               </div>
             )}
             {success && (
-              <div style={{ padding: "12px 16px", borderRadius: 10, background: "rgba(22,184,166,.06)", border: "1px solid rgba(22,184,166,.2)", marginBottom: 4 }}>
+              <div style={{ padding: "12px 16px", borderRadius: 10, background: "rgba(22,184,166,.06)", border: "1px solid rgba(22,184,166,.2)", marginBottom: 16 }}>
                 <Txt style={{ fontSize: 13, color: "#16B8A6" }}>Account created. Redirecting to dashboard...</Txt>
               </div>
             )}
 
             <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                {[{ label: "First Name", name: "firstName", placeholder: "Dr. Jane" }, { label: "Last Name", name: "lastName", placeholder: "Smith" }].map((field) => (
+                {[
+                  { label: "First Name", name: "firstName", placeholder: "Jane" },
+                  { label: "Last Name", name: "lastName", placeholder: "Smith" },
+                ].map((field) => (
                   <div key={field.label}>
                     <label style={{ display: "block", fontFamily: "var(--font-manrope,'Manrope',sans-serif)", fontSize: 13, fontWeight: 700, color: "#0C1E38", marginBottom: 7 }}>{field.label}</label>
                     <input name={field.name} type="text" required placeholder={field.placeholder} style={inputBase}
@@ -155,20 +181,14 @@ export default function SignupPage() {
                     style={{ ...inputBase, paddingRight: 44 }}
                     onFocus={(e) => { e.currentTarget.style.borderColor = "#1769E8"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(23,105,232,.08)"; }}
                     onBlur={(e) => { e.currentTarget.style.borderColor = "#E2E8F0"; e.currentTarget.style.boxShadow = "none"; }} />
-                  <button type="button" onClick={() => setShowPass(!showPass)} style={{
-                    position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
-                    background: "none", border: "none", cursor: "pointer", color: "#94A3B8", padding: 4, display: "flex",
-                  }}>
+                  <button type="button" onClick={() => setShowPass(!showPass)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#94A3B8", padding: 4, display: "flex" }}>
                     {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
               </div>
 
-              <button type="submit" disabled={loading} className="btn btn-blue" style={{
-                width: "100%", justifyContent: "center", fontSize: 15, padding: "13px 24px",
-                opacity: loading ? .7 : 1, marginTop: 4,
-              }}>
-                {loading ? "Creating account..." : (<>Create Free Account <ArrowRight size={16} /></>)}
+              <button type="submit" disabled={loading} className="btn btn-blue" style={{ width: "100%", justifyContent: "center", fontSize: 15, padding: "13px 24px", opacity: loading ? .7 : 1, marginTop: 4 }}>
+                {loading ? "Creating account..." : (<>Create Account <ArrowRight size={16} /></>)}
               </button>
             </form>
 

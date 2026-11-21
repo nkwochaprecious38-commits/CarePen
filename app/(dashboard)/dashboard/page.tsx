@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { Users, Calendar, FileText, CheckCircle2, FileEdit, ClipboardList, TrendingUp, Stethoscope, Clock, Plus } from "lucide-react";

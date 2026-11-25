@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X, PenLine } from "lucide-react";
+import Image from "next/image";
+import { Menu, X } from "lucide-react";
 
 const links = [
   { label: "Platform", href: "/platform" },
@@ -28,13 +29,8 @@ export default function Navigation() {
     >
       <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 24px", height: "100%", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         {/* Logo */}
-        <Link href="/" style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none" }}>
-          <div style={{ width: "34px", height: "34px", borderRadius: "9px", background: "linear-gradient(135deg,#1769E8,#16B8A6)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <PenLine size={17} color="#fff" strokeWidth={2.5} />
-          </div>
-          <span className="font-manrope" style={{ fontWeight: 800, fontSize: "18px", color: scrolled ? "#10233F" : "#fff" }}>
-            CarePen
-          </span>
+        <Link href="/" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
+          <Image src="/logo.png" alt="CarePen" width={140} height={44} style={{ objectFit: "contain", filter: scrolled ? "none" : "brightness(0) invert(1)" }} priority />
         </Link>
 
         {/* Desktop links */}

@@ -3,10 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   LayoutDashboard, Users, Calendar, Mic, FileText, BookOpen,
   Wand2, LayoutTemplate, CheckSquare, ClipboardList, BarChart3,
-  UserCog, Settings, PenLine, ChevronLeft, ChevronRight, LogOut,
+  UserCog, Settings, ChevronLeft, ChevronRight, LogOut,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -46,14 +47,13 @@ export default function Sidebar({ displayName }: { displayName?: string }) {
       transition: "width .25s ease", position: "relative", flexShrink: 0,
     }}>
       {/* Logo */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: collapsed ? "20px 16px" : "20px 16px", borderBottom: "1px solid rgba(255,255,255,.05)", justifyContent: collapsed ? "center" : "flex-start" }}>
-        <div style={{ width: 32, height: 32, borderRadius: 8, background: "linear-gradient(135deg,#1769E8,#16B8A6)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <PenLine size={15} color="#fff" strokeWidth={2.5} />
-        </div>
-        {!collapsed && (
-          <span style={{ fontFamily: "var(--font-manrope,'Manrope',sans-serif)", fontWeight: 800, fontSize: 17, color: "#fff" }}>
-            Care<span style={{ color: "#67D5D0" }}>Pen</span>
-          </span>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: collapsed ? "center" : "flex-start", padding: "16px 12px", borderBottom: "1px solid rgba(255,255,255,.05)", minHeight: 64 }}>
+        {collapsed ? (
+          <div style={{ width: 32, height: 32, borderRadius: 8, background: "linear-gradient(135deg,#1769E8,#16B8A6)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <span style={{ color: "#fff", fontFamily: "var(--font-manrope,'Manrope',sans-serif)", fontWeight: 900, fontSize: 13 }}>CP</span>
+          </div>
+        ) : (
+          <Image src="/logo.png" alt="CarePen" width={120} height={38} style={{ objectFit: "contain", filter: "brightness(0) invert(1)" }} />
         )}
       </div>
 

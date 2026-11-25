@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, ArrowRight, PenLine, CheckCircle2 } from "lucide-react";
+import Image from "next/image";
+import { Eye, EyeOff, ArrowRight, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 const H = ({ tag: T = "h2", style = {}, children, ...p }: any) => (
@@ -85,11 +86,8 @@ export default function SignupPage() {
     <div style={{ minHeight: "100vh", display: "flex", background: "#F5F7FA" }}>
       {/* Left branding panel */}
       <div className="hero-bg" style={{ width: 480, flexShrink: 0, display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 48 }}>
-        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
-          <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,#1769E8,#16B8A6)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <PenLine size={18} color="#fff" />
-          </div>
-          <H tag="span" style={{ fontWeight: 800, fontSize: 20, color: "#fff" }}>CarePen</H>
+        <Link href="/" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
+          <Image src="/logo.png" alt="CarePen" width={130} height={40} style={{ objectFit: "contain", filter: "brightness(0) invert(1)" }} />
         </Link>
 
         <div>
